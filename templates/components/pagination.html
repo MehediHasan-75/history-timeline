@@ -1,0 +1,11 @@
+{% if page_obj.has_other_pages %}
+  <nav class="mt-8 flex items-center justify-between border-t border-stone-200 pt-5" aria-label="Pagination">
+    <div>
+      {% if page_obj.has_previous %}<a class="btn-secondary" href="?page={{ page_obj.previous_page_number }}{{ pagination_query }}">Previous</a>{% endif %}
+    </div>
+    <p class="text-sm text-stone-600">Page <span class="font-semibold text-stone-900">{{ page_obj.number }}</span> of {{ page_obj.paginator.num_pages }}</p>
+    <div>
+      {% if page_obj.has_next %}<a class="btn-secondary" href="?page={{ page_obj.next_page_number }}{{ pagination_query }}">Next</a>{% endif %}
+    </div>
+  </nav>
+{% endif %}

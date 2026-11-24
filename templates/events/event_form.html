@@ -1,0 +1,16 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}{% if event %}Edit {{ event.title }}{% else %}New event{% endif %} — History Timeline{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-4xl">
+    <div class="mb-7"><p class="eyebrow">{% if event %}Update chronology{% else %}Add to your chronology{% endif %}</p><h1 class="mt-1 text-3xl sm:text-4xl">{% if event %}Edit event{% else %}Create an event{% endif %}</h1><p class="mt-2 text-stone-600">Use BCE or CE dates without a native date picker.</p></div>
+    <form class="paper-card p-5 sm:p-8" method="post" data-historical-form>
+      {% include "events/_event_form.html" %}
+      <div class="mt-8 flex flex-col-reverse gap-3 border-t border-stone-200 pt-6 sm:flex-row sm:justify-end">
+        <a class="btn-secondary" href="{% if event %}{% url 'events:detail' event.pk %}{% else %}{% url 'events:list' %}{% endif %}">Cancel</a>
+        <button class="btn-primary" type="submit">{% if event %}Save changes{% else %}Create event{% endif %}</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}Dashboard — History Timeline{% endblock %}
+
+{% block content %}
+  <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div><p class="eyebrow">{% if LANGUAGE_CODE == 'bn' %}আপনার গবেষণার স্থান{% else %}Your research space{% endif %}</p><h1 class="mt-1 text-3xl sm:text-4xl">{% if LANGUAGE_CODE == 'bn' %}আবার স্বাগতম{% else %}Welcome back{% endif %}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</h1><p class="mt-2 text-stone-600">{% if LANGUAGE_CODE == 'bn' %}আপনার কালানুক্রম পর্যালোচনা করুন এবং তথ্য যোগ করুন।{% else %}Review your chronology and continue building the record.{% endif %}</p></div>
+    <div class="flex gap-2">
+      <button class="btn-secondary lg:hidden" type="button" data-drawer-open aria-controls="filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার{% else %}Filters{% endif %}</button>
+      <button class="btn-primary hidden sm:inline-flex" type="button" data-dialog-open="new-event-dialog">{% if LANGUAGE_CODE == 'bn' %}নতুন ঘটনা{% else %}New event{% endif %}</button>
+      <a class="btn-primary sm:hidden" href="{% url 'events:create' %}">{% if LANGUAGE_CODE == 'bn' %}নতুন ঘটনা{% else %}New event{% endif %}</a>
+    </div>
+  </div>
+
+  <dl class="mb-6 grid gap-3 sm:grid-cols-3">
+    <div class="paper-card p-4"><dt class="text-sm text-stone-500">All events</dt><dd class="mt-1 font-display text-3xl font-bold">{{ event_stats.total|default:0 }}</dd></div>
+    <div class="paper-card p-4"><dt class="text-sm text-stone-500">Published</dt><dd class="mt-1 font-display text-3xl font-bold text-emerald-700">{{ event_stats.published|default:0 }}</dd></div>
+    <div class="paper-card p-4"><dt class="text-sm text-stone-500">Private</dt><dd class="mt-1 font-display text-3xl font-bold text-stone-600">{{ event_stats.private|default:0 }}</dd></div>
+  </dl>
+
+  <div class="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)]">
+    <aside id="filter-drawer" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-50 p-5 lg:static lg:z-auto lg:block lg:rounded-2xl lg:border lg:border-stone-200 lg:bg-white lg:p-5" aria-label="Timeline filters">
+      {% include "components/filters.html" %}
+    </aside>
+    <div class="min-w-0">
+      <div class="mb-4 flex min-h-8 flex-wrap gap-2" data-active-filters aria-live="polite"></div>
+      {% include "components/timeline.html" with feed_url=private_feed_url %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block dialogs %}
+  <dialog id="new-event-dialog" class="m-auto max-h-[92vh] w-[min(56rem,calc(100%-2rem))] overflow-y-auto rounded-2xl border border-stone-200 bg-white p-0 text-stone-800 shadow-2xl backdrop:bg-stone-950/60" data-dialog aria-labelledby="new-event-title">
+    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white px-5 py-4 sm:px-7">
+      <div><p class="eyebrow">Add to your chronology</p><h2 id="new-event-title" class="mt-1 text-2xl">New event</h2></div>
+      <button class="btn-ghost px-2" type="button" data-dialog-close aria-label="Close new event form"><svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
+    <form class="p-5 sm:p-7" method="post" action="{% url 'events:create' %}" data-historical-form>
+      {% include "events/_event_form.html" with form=event_form %}
+      <div class="mt-7 flex flex-col-reverse gap-3 border-t border-stone-200 pt-5 sm:flex-row sm:justify-end">
+        <button class="btn-secondary" type="button" data-dialog-close>Cancel</button>
+        <button class="btn-primary" type="submit">Save event</button>
+      </div>
+    </form>
+  </dialog>
+{% endblock %}

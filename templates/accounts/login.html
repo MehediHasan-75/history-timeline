@@ -1,0 +1,16 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}Sign in — History Timeline{% endblock %}
+
+{% block content %}
+  <p class="eyebrow">Welcome back</p><h1 class="mt-2 text-3xl">Sign in to your timeline</h1><p class="mt-2 text-stone-600">Continue building your historical collection.</p>
+  {% if form.non_field_errors %}<div class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <form class="mt-7 space-y-5" method="post">
+    {% csrf_token %}
+    <div><label class="field-label" for="id_username">Username</label><input class="form-control" id="id_username" name="username" type="text" value="{{ form.username.value|default_if_none:'' }}" autocomplete="username" required autofocus>{% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+    <div><div class="flex items-center justify-between"><label class="field-label" for="id_password">Password</label>{% if password_reset_url %}<a class="text-sm font-semibold text-amber-800 hover:underline" href="{{ password_reset_url }}">Forgot password?</a>{% endif %}</div><input class="form-control" id="id_password" name="password" type="password" autocomplete="current-password" required>{% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button class="btn-primary w-full" type="submit">Sign in</button>
+  </form>
+  <p class="mt-7 text-center text-sm text-stone-600">New to History Timeline? <a class="font-semibold text-amber-800 hover:underline" href="{% url 'accounts:register' %}">Create an account</a></p>
+{% endblock %}

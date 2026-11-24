@@ -1,0 +1,69 @@
+{% csrf_token %}
+{% if form.non_field_errors %}
+  <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert" tabindex="-1">
+    <p class="font-semibold">Please correct these problems:</p>
+    <ul class="mt-2 list-disc pl-5">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+  </div>
+{% endif %}
+
+<div class="grid gap-6">
+  <div>
+    <label class="field-label" for="id_title">Title <span class="text-red-700">*</span></label>
+    <input class="form-control" type="text" id="id_title" name="title" maxlength="200" value="{{ form.title.value|default_if_none:'' }}" autocomplete="off" required {% if form.title.errors %}aria-invalid="true" aria-describedby="id_title_error"{% endif %}>
+    {% for error in form.title.errors %}<p class="field-error" id="id_title_error">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div>
+    <label class="field-label" for="id_description">Description <span class="text-red-700">*</span></label>
+    <textarea class="form-control min-h-36 resize-y" id="id_description" name="description" required {% if form.description.errors %}aria-invalid="true" aria-describedby="id_description_error"{% endif %}>{{ form.description.value|default_if_none:'' }}</textarea>
+    <p class="field-help">Plain text only. Add concise context that helps readers understand why this event matters.</p>
+    {% for error in form.description.errors %}<p class="field-error" id="id_description_error">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-2">
+    <div>
+      <label class="field-label" for="id_category">Category <span class="text-red-700">*</span></label>
+      <select class="form-select" id="id_category" name="category" required {% if form.category.errors %}aria-invalid="true"{% endif %}>
+        <option value="">Choose a category</option>
+        {% for value, label in form.category.field.choices %}{% if value %}<option value="{{ value }}" {% if form.category.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}
+      </select>
+      {% for error in form.category.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div>
+      <label class="field-label" for="id_new_tags">New tags <span class="font-normal text-stone-500">optional</span></label>
+      <input class="form-control" type="text" id="id_new_tags" name="new_tags" value="{{ form.new_tags.value|default_if_none:'' }}" placeholder="poetry, renaissance, war">
+      <p class="field-help">Separate new tags with commas.</p>
+      {% for error in form.new_tags.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+  </div>
+
+  {% if form.tags %}
+    <fieldset>
+      <legend class="field-label">Existing tags <span class="font-normal text-stone-500">optional</span></legend>
+      <div class="flex max-h-36 flex-wrap gap-2 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 p-3">
+        {% for checkbox in form.tags %}
+          <label class="chip cursor-pointer has-[:checked]:border-amber-700 has-[:checked]:bg-amber-100">{{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span></label>
+        {% empty %}<p class="text-sm text-stone-500">No tags exist yet. Add the first tags above.</p>{% endfor %}
+      </div>
+      {% for error in form.tags.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </fieldset>
+  {% endif %}
+
+  {% include "components/date_input.html" with legend="Start date" required=True calendar_name="start_calendar" calendar_value=form.start_calendar.value calendar_errors=form.start_calendar.errors year_name="start_year_abs" year_value=form.start_year_abs.value year_errors=form.start_year_abs.errors era_name="start_era" era_value=form.start_era.value era_errors=form.start_era.errors month_name="start_month" month_value=form.start_month.value month_errors=form.start_month.errors day_name="start_day" day_value=form.start_day.value day_errors=form.start_day.errors month_choices=month_choices %}
+
+  <div class="rounded-xl border border-stone-200 bg-white p-4">
+    <label class="flex cursor-pointer items-start gap-3">
+      <input class="mt-1 size-4 rounded border-stone-300 text-amber-700 focus:ring-amber-700" type="checkbox" data-end-date-toggle aria-controls="end-date-fields" {% if form.end_year_abs.value %}checked{% endif %}>
+      <span><span class="block font-semibold text-stone-900">This event has an end date</span><span class="mt-0.5 block text-sm text-stone-500">Use for eras, movements, reigns, wars, and other periods.</span></span>
+    </label>
+  </div>
+
+  <div id="end-date-fields">
+    {% include "components/date_input.html" with legend="End date" required=False calendar_name="end_calendar" calendar_value=form.end_calendar.value calendar_errors=form.end_calendar.errors year_name="end_year_abs" year_value=form.end_year_abs.value year_errors=form.end_year_abs.errors era_name="end_era" era_value=form.end_era.value era_errors=form.end_era.errors month_name="end_month" month_value=form.end_month.value month_errors=form.end_month.errors day_name="end_day" day_value=form.end_day.value day_errors=form.end_day.errors month_choices=month_choices %}
+  </div>
+
+  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 bg-stone-50 p-4">
+    <input class="mt-1 size-4 rounded border-stone-300 text-amber-700 focus:ring-amber-700" type="checkbox" name="is_published" value="1" {% if form.is_published.value %}checked{% endif %}>
+    <span><span class="block font-semibold text-stone-900">Publish this event</span><span class="mt-0.5 block text-sm text-stone-500">Published events can appear on the public timeline. Leave off to keep it private.</span></span>
+  </label>
+</div>

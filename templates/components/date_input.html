@@ -1,0 +1,46 @@
+<fieldset class="rounded-xl border border-stone-200 bg-stone-50/70 p-4" data-date-group>
+  <legend class="px-1 font-display text-lg font-bold text-stone-900">{{ legend }}</legend>
+  <p class="mb-4 text-sm text-stone-500">{% if LANGUAGE_CODE == 'bn' %}পঞ্জিকা নির্বাচন করুন। বাংলা ও ইংরেজি সংখ্যা গ্রহণযোগ্য। মাস ও দিন ঐচ্ছিক।{% else %}Choose a calendar. English and Bangla digits are accepted. Month and day are optional.{% endif %}</p>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div>
+      <label class="field-label" for="id_{{ calendar_name }}">{% if LANGUAGE_CODE == 'bn' %}পঞ্জিকা{% else %}Calendar{% endif %}</label>
+      <select class="form-select" id="id_{{ calendar_name }}" name="{{ calendar_name }}" data-date-calendar>
+        <option value="GREGORIAN" {% if calendar_value != 'BENGALI_BD' %}selected{% endif %}>Gregorian</option>
+        <option value="BENGALI_BD" {% if calendar_value == 'BENGALI_BD' %}selected{% endif %}>বাংলাদেশ বাংলা</option>
+      </select>
+      {% for error in calendar_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div class="sm:col-span-2 lg:col-span-1">
+      <label class="field-label" for="id_{{ year_name }}">{% if LANGUAGE_CODE == 'bn' %}বছর{% else %}Year{% endif %}{% if required %} <span class="text-red-700">*</span>{% endif %}</label>
+      <input class="form-control" type="text" inputmode="numeric" pattern="[0-9০-৯]+" id="id_{{ year_name }}" name="{{ year_name }}" value="{{ year_value|default_if_none:'' }}" placeholder="44 / ১৩৭০" data-date-year {% if required %}required{% endif %} {% if year_errors %}aria-invalid="true" aria-describedby="id_{{ year_name }}_error"{% endif %}>
+      {% for error in year_errors %}<p class="field-error" id="id_{{ year_name }}_error">{{ error }}</p>{% endfor %}
+    </div>
+    <div data-era-group>
+      <span class="field-label">{% if LANGUAGE_CODE == 'bn' %}যুগ{% else %}Era{% endif %}{% if required %} <span class="text-red-700">*</span>{% endif %}</span>
+      <div class="grid grid-cols-2 rounded-lg border border-stone-300 bg-white p-1" role="group" aria-label="{{ legend }} era">
+        <label class="cursor-pointer">
+          <input class="peer sr-only" type="radio" name="{{ era_name }}" value="BCE" {% if era_value == 'BCE' %}checked{% endif %} {% if required %}required{% endif %}>
+          <span class="flex min-h-9 items-center justify-center rounded-md px-2 text-sm font-semibold text-stone-600 peer-checked:bg-amber-700 peer-checked:text-white">BCE</span>
+        </label>
+        <label class="cursor-pointer">
+          <input class="peer sr-only" type="radio" name="{{ era_name }}" value="CE" {% if era_value != 'BCE' %}checked{% endif %} {% if required %}required{% endif %}>
+          <span class="flex min-h-9 items-center justify-center rounded-md px-2 text-sm font-semibold text-stone-600 peer-checked:bg-amber-700 peer-checked:text-white">CE</span>
+        </label>
+      </div>
+      {% for error in era_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div>
+      <label class="field-label" for="id_{{ month_name }}">Month <span class="font-normal text-stone-500">optional</span></label>
+      <select class="form-select" id="id_{{ month_name }}" name="{{ month_name }}" data-date-month {% if month_errors %}aria-invalid="true"{% endif %}>
+        <option value="">Unknown</option>
+        {% for number, name in month_choices %}<option value="{{ number }}" {% if month_value|stringformat:'s' == number|stringformat:'s' %}selected{% endif %}>{{ name }}</option>{% endfor %}
+      </select>
+      {% for error in month_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+    <div>
+      <label class="field-label" for="id_{{ day_name }}">Day <span class="font-normal text-stone-500">optional</span></label>
+      <input class="form-control" type="text" inputmode="numeric" pattern="[0-9০-৯]+" id="id_{{ day_name }}" name="{{ day_name }}" value="{{ day_value|default_if_none:'' }}" placeholder="1–31" data-date-day {% if day_errors %}aria-invalid="true"{% endif %}>
+      {% for error in day_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+  </div>
+</fieldset>

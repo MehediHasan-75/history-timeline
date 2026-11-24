@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: history-timeline
+    runtime: python
+    plan: free
+    buildCommand: bash scripts/build.sh
+    startCommand: bash scripts/start.sh
+    healthCheckPath: /health/live/
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: NODE_VERSION
+        value: 22.14.0

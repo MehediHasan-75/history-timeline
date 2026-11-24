@@ -1,0 +1,21 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Explore the public timeline — History Timeline{% endblock %}
+
+{% block content %}
+  <div class="container-page py-8 sm:py-12">
+    <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div><p class="eyebrow">{% if LANGUAGE_CODE == 'bn' %}প্রকাশিত সংগ্রহ{% else %}Published collection{% endif %}</p><h1 class="mt-1 text-3xl sm:text-4xl">{% if LANGUAGE_CODE == 'bn' %}সময়রেখা দেখুন{% else %}Explore the timeline{% endif %}</h1><p class="mt-2 max-w-3xl text-stone-600">{% if LANGUAGE_CODE == 'bn' %}শতাব্দী পেরিয়ে ঘটনা দেখুন বা বিষয় ও যুগ দিয়ে ফলাফল ছাঁকুন।{% else %}Move across centuries, open a story, or narrow the view by subject and era.{% endif %}</p></div>
+      <button class="btn-secondary lg:hidden" type="button" data-drawer-open aria-controls="filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার{% else %}Filters{% endif %}</button>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)]">
+      <aside id="filter-drawer" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-50 p-5 lg:static lg:z-auto lg:block lg:rounded-2xl lg:border lg:border-stone-200 lg:bg-white lg:p-5" aria-label="Timeline filters">
+        {% include "components/filters.html" %}
+      </aside>
+      <div class="min-w-0">
+        <div class="mb-4 flex min-h-8 flex-wrap gap-2" data-active-filters aria-live="polite"></div>
+        {% include "components/timeline.html" with feed_url=public_feed_url %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

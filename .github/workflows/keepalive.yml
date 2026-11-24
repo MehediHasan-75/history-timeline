@@ -1,0 +1,21 @@
+name: Keep demo awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: ${{ vars.ENABLE_KEEPALIVE == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe live endpoint
+        env:
+          APP_HEALTH_URL: ${{ secrets.APP_HEALTH_URL }}
+        run: bash scripts/keepalive.sh

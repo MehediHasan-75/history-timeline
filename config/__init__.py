@@ -1,0 +1,1 @@
+"""Historical Calendar Django project."""

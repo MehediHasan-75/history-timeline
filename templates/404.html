@@ -1,0 +1,12 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Page not found — History Timeline{% endblock %}
+
+{% block content %}
+  <section class="container-page py-24 text-center sm:py-32">
+    <p class="eyebrow">404 · Lost in time</p>
+    <h1 class="mt-4 text-4xl sm:text-5xl">This page left no record.</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-stone-600">The address may be wrong, or the event may no longer be available.</p>
+    <a class="btn-primary mt-8" href="{% url 'core:landing' %}">Return home</a>
+  </section>
+{% endblock %}

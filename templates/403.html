@@ -1,0 +1,12 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Access denied — History Timeline{% endblock %}
+
+{% block content %}
+  <section class="container-page py-24 text-center sm:py-32">
+    <p class="eyebrow">403 · Permission required</p>
+    <h1 class="mt-4 text-4xl sm:text-5xl">This record is not open to you.</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-stone-600">The event may be private or belong to another researcher.</p>
+    <div class="mt-8 flex justify-center gap-3"><a class="btn-primary" href="{% url 'core:public_timeline' %}">Explore public timeline</a>{% if request.user.is_authenticated %}<a class="btn-secondary" href="{% url 'core:dashboard' %}">Return to dashboard</a>{% endif %}</div>
+  </section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% load i18n %}<header class="sticky top-0 z-40 border-b border-stone-200/90 bg-stone-50/95 backdrop-blur">
+  <nav class="container-page flex min-h-16 items-center justify-between gap-4" aria-label="Primary navigation">
+    <a href="{% url 'core:landing' %}" class="inline-flex items-center gap-2 font-display text-lg font-bold text-stone-900">
+      <span class="grid size-9 place-items-center rounded-full bg-amber-700 text-sm text-white" aria-hidden="true">C</span>
+      <span>History Timeline</span>
+    </a>
+
+    <button type="button" class="btn-ghost px-3 md:hidden" data-toggle aria-controls="mobile-navigation" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+
+    <div class="hidden items-center gap-1 md:flex">
+      <a class="nav-link" href="{% url 'core:public_timeline' %}" {% if request.resolver_match.url_name == 'public_timeline' %}aria-current="page"{% endif %}>{% if LANGUAGE_CODE == 'bn' %}সময়রেখা দেখুন{% else %}Explore timeline{% endif %}</a>
+      {% if request.user.is_authenticated %}
+        <a class="nav-link" href="{% url 'core:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>{% if LANGUAGE_CODE == 'bn' %}ড্যাশবোর্ড{% else %}Dashboard{% endif %}</a>
+        <a class="nav-link" href="{% url 'events:list' %}" {% if request.resolver_match.app_name == 'events' %}aria-current="page"{% endif %}>{% if LANGUAGE_CODE == 'bn' %}আমার ঘটনাবলি{% else %}My events{% endif %}</a>
+        <a class="nav-link" href="{% url 'accounts:profile' %}">{% if LANGUAGE_CODE == 'bn' %}প্রোফাইল{% else %}Profile{% endif %}</a>
+        <a class="btn-primary ml-2" href="{% url 'events:create' %}">{% if LANGUAGE_CODE == 'bn' %}নতুন ঘটনা{% else %}New event{% endif %}</a>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button class="btn-ghost" type="submit">{% if LANGUAGE_CODE == 'bn' %}সাইন আউট{% else %}Sign out{% endif %}</button>
+        </form>
+      {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}">{% if LANGUAGE_CODE == 'bn' %}সাইন ইন{% else %}Sign in{% endif %}</a>
+        <a class="btn-primary ml-2" href="{% url 'accounts:register' %}">{% if LANGUAGE_CODE == 'bn' %}অ্যাকাউন্ট তৈরি করুন{% else %}Create account{% endif %}</a>
+      {% endif %}
+      <form method="post" action="{% url 'set_language' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn-ghost" type="submit" name="language" value="{% if LANGUAGE_CODE == 'bn' %}en{% else %}bn{% endif %}">{% if LANGUAGE_CODE == 'bn' %}English{% else %}বাংলা{% endif %}</button></form>
+    </div>
+  </nav>
+
+  <div id="mobile-navigation" class="container-page border-t border-stone-200 py-3 md:hidden" hidden>
+    <div class="flex flex-col gap-1">
+      <a class="nav-link" href="{% url 'core:public_timeline' %}">{% if LANGUAGE_CODE == 'bn' %}সময়রেখা দেখুন{% else %}Explore timeline{% endif %}</a>
+      {% if request.user.is_authenticated %}
+        <a class="nav-link" href="{% url 'core:dashboard' %}">Dashboard</a>
+        <a class="nav-link" href="{% url 'events:list' %}">My events</a>
+        <a class="nav-link" href="{% url 'accounts:profile' %}">Profile</a>
+        <a class="btn-primary mt-2" href="{% url 'events:create' %}">New event</a>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button class="btn-ghost w-full justify-start" type="submit">Sign out</button>
+        </form>
+      {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}">Sign in</a>
+        <a class="btn-primary mt-2" href="{% url 'accounts:register' %}">Create account</a>
+      {% endif %}
+      <form method="post" action="{% url 'set_language' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn-ghost w-full justify-start" type="submit" name="language" value="{% if LANGUAGE_CODE == 'bn' %}en{% else %}bn{% endif %}">{% if LANGUAGE_CODE == 'bn' %}English{% else %}বাংলা{% endif %}</button></form>
+    </div>
+  </div>
+</header>

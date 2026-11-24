@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+  {% include "components/navigation.html" with nav_variant="app" %}
+  {% include "components/alerts.html" %}
+  <main id="main-content" class="container-page py-6 sm:py-8" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+  {% block dialogs %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore historical and literary events across BCE and CE.">
+  <title>{% block title %}History Timeline{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'dist/app.v1.css' %}">
+  <link rel="stylesheet" href="{% static 'dist/timeline.v3.9.13.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-full">
+  <a class="skip-link" href="#main-content">{% if LANGUAGE_CODE == 'bn' %}মূল বিষয়বস্তুতে যান{% else %}Skip to main content{% endif %}</a>
+  {% block body %}{% endblock %}
+  <script src="{% static 'dist/app.v1.js' %}" defer></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

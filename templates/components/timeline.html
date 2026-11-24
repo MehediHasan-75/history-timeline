@@ -1,0 +1,11 @@
+{% load static %}<section class="timeline-shell" data-timeline data-feed-url="{{ feed_url }}" data-filter-form="#event-filters" data-language-url="{% if LANGUAGE_CODE == 'bn' %}{% static 'dist/locale/bn.json' %}{% else %}en{% endif %}" aria-label="Historical events timeline">
+  <div class="h-full w-full" data-timeline-canvas></div>
+  <div class="timeline-status" data-timeline-status data-state="loading" role="status" aria-live="polite">
+    <div class="max-w-sm">
+      <span class="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-stone-200 border-t-amber-700 motion-reduce:animate-none" aria-hidden="true"></span>
+      <p class="font-display text-xl font-bold text-stone-900" data-status-message>Loading historical events…</p>
+      <button class="btn-secondary mt-4" type="button" data-status-retry hidden>Try again</button>
+    </div>
+  </div>
+  <noscript><div class="timeline-status"><p class="font-semibold text-stone-800">Enable JavaScript to use the interactive timeline.</p></div></noscript>
+</section>

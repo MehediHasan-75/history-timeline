@@ -1,0 +1,12 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Service unavailable — History Timeline{% endblock %}
+
+{% block content %}
+  <section class="container-page py-24 text-center sm:py-32">
+    <p class="eyebrow">500 · Temporary interruption</p>
+    <h1 class="mt-4 text-4xl sm:text-5xl">The archive could not open.</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-stone-600">Your data is not lost. Wait a moment, then try this page again.</p>
+    <button class="btn-primary mt-8" type="button" onclick="window.location.reload()">Try again</button>
+  </section>
+{% endblock %}

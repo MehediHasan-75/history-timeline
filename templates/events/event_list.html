@@ -1,0 +1,30 @@
+{% extends "layouts/app.html" %}
+
+{% block title %}My events — History Timeline{% endblock %}
+
+{% block content %}
+  <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div><p class="eyebrow">Your collection</p><h1 class="mt-1 text-3xl sm:text-4xl">My events</h1><p class="mt-2 text-stone-600">Edit private research or choose what to publish.</p></div>
+    <a class="btn-primary" href="{% url 'events:create' %}">New event</a>
+  </div>
+
+  <form class="paper-card mb-6 grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_14rem_auto]" method="get">
+    <div><label class="sr-only" for="event-search">Search events</label><input class="form-control" id="event-search" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search your events"></div>
+    <div><label class="sr-only" for="event-visibility">Visibility</label><select class="form-select" id="event-visibility" name="visibility"><option value="">All visibility</option><option value="published" {% if request.GET.visibility == 'published' %}selected{% endif %}>Published</option><option value="private" {% if request.GET.visibility == 'private' %}selected{% endif %}>Private</option></select></div>
+    <button class="btn-secondary" type="submit">Search</button>
+  </form>
+
+  {% if events %}
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      {% for event in events %}{% include "components/event_card.html" with event=event %}{% endfor %}
+    </div>
+    {% include "components/pagination.html" %}
+  {% else %}
+    <section class="paper-card py-16 text-center">
+      <div class="mx-auto grid size-16 place-items-center rounded-full bg-amber-100 font-display text-2xl text-amber-800" aria-hidden="true">＋</div>
+      <h2 class="mt-5 text-2xl">No events found</h2>
+      <p class="mx-auto mt-2 max-w-md text-stone-600">Create your first event or clear the search to see the complete collection.</p>
+      <a class="btn-primary mt-6" href="{% url 'events:create' %}">Create an event</a>
+    </section>
+  {% endif %}
+{% endblock %}

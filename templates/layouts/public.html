@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+  {% include "components/navigation.html" with nav_variant="public" %}
+  {% include "components/alerts.html" %}
+  <main id="main-content" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+  {% include "components/footer.html" %}
+{% endblock %}

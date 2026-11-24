@@ -1,0 +1,52 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}History Timeline — History across every era{% endblock %}
+
+{% block content %}
+  <section class="container-page grid min-h-[calc(100vh-4rem)] items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+    <div>
+      <p class="eyebrow">Historical and literary calendar</p>
+      <h1 class="mt-5 max-w-4xl text-5xl leading-[1.08] sm:text-6xl lg:text-7xl">Every century belongs on the same page.</h1>
+      <p class="mt-6 max-w-2xl text-lg leading-8 text-stone-600 sm:text-xl">Map empires, movements, authors, and ideas across BCE and CE. History Timeline gives ancient dates the same precision as modern ones.</p>
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <a class="btn-primary" href="{% url 'core:public_timeline' %}">Explore public timeline</a>
+        {% if request.user.is_authenticated %}<a class="btn-secondary" href="{% url 'core:dashboard' %}">Open dashboard</a>{% else %}<a class="btn-secondary" href="{% url 'accounts:register' %}">Create free account</a>{% endif %}
+      </div>
+      <dl class="mt-12 grid max-w-xl grid-cols-3 gap-5 border-t border-stone-300 pt-6">
+        <div><dt class="text-sm text-stone-500">Date range</dt><dd class="mt-1 font-display text-xl font-bold">BCE to CE</dd></div>
+        <div><dt class="text-sm text-stone-500">Visibility</dt><dd class="mt-1 font-display text-xl font-bold">You decide</dd></div>
+        <div><dt class="text-sm text-stone-500">Built for</dt><dd class="mt-1 font-display text-xl font-bold">Research</dd></div>
+      </dl>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-2xl" aria-hidden="true">
+      <div class="absolute -inset-6 -z-10 rounded-[2.5rem] bg-amber-100/60 blur-2xl"></div>
+      <div class="paper-card overflow-hidden p-5 sm:p-7">
+        <div class="flex items-center justify-between border-b border-stone-200 pb-5">
+          <div><p class="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">World history</p><p class="mt-1 font-display text-xl font-bold">A line through time</p></div>
+          <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">4 events</span>
+        </div>
+        <div class="relative py-8">
+          <div class="absolute bottom-8 left-4 top-8 w-px bg-amber-300 sm:left-1/2"></div>
+          <div class="space-y-7">
+            <div class="relative ml-10 rounded-xl border border-stone-200 bg-stone-50 p-4 sm:ml-0 sm:mr-[52%] sm:text-right"><span class="absolute -left-[1.75rem] top-5 size-3 rounded-full bg-amber-700 ring-4 ring-amber-100 sm:-right-[2.05rem] sm:left-auto"></span><p class="text-xs font-bold text-amber-700">776 BCE</p><p class="mt-1 font-display font-bold">First ancient Olympic Games</p></div>
+            <div class="relative ml-10 rounded-xl border border-stone-200 bg-white p-4 sm:ml-[52%]"><span class="absolute -left-[1.75rem] top-5 size-3 rounded-full bg-stone-700 ring-4 ring-stone-200 sm:-left-[2.05rem]"></span><p class="text-xs font-bold text-amber-700">44 BCE</p><p class="mt-1 font-display font-bold">The Ides of March</p></div>
+            <div class="relative ml-10 rounded-xl border border-stone-200 bg-stone-50 p-4 sm:ml-0 sm:mr-[52%] sm:text-right"><span class="absolute -left-[1.75rem] top-5 size-3 rounded-full bg-amber-700 ring-4 ring-amber-100 sm:-right-[2.05rem] sm:left-auto"></span><p class="text-xs font-bold text-amber-700">1616 CE</p><p class="mt-1 font-display font-bold">Shakespeare's final chapter</p></div>
+            <div class="relative ml-10 rounded-xl border border-stone-200 bg-white p-4 sm:ml-[52%]"><span class="absolute -left-[1.75rem] top-5 size-3 rounded-full bg-stone-700 ring-4 ring-stone-200 sm:-left-[2.05rem]"></span><p class="text-xs font-bold text-amber-700">1952 CE</p><p class="mt-1 font-display font-bold">Bengali Language Movement</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-stone-200 bg-white/80 py-20">
+    <div class="container-page">
+      <div class="max-w-2xl"><p class="eyebrow">One workspace, many histories</p><h2 class="mt-3 text-3xl sm:text-4xl">Research without flattening the past.</h2></div>
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
+        <article class="paper-card p-6"><p class="font-display text-4xl text-amber-700">−44</p><h3 class="mt-5 text-xl">BCE dates that work</h3><p class="mt-2 text-stone-600">Enter a familiar positive year and choose an era. No broken native date picker.</p></article>
+        <article class="paper-card p-6"><p class="font-display text-4xl text-amber-700">#</p><h3 class="mt-5 text-xl">Connected subjects</h3><p class="mt-2 text-stone-600">Organize events by category and tags across history, language, and literature.</p></article>
+        <article class="paper-card p-6"><p class="font-display text-4xl text-amber-700">◎</p><h3 class="mt-5 text-xl">Private until ready</h3><p class="mt-2 text-stone-600">Keep research private, then publish individual events when they are ready to share.</p></article>
+      </div>
+    </div>
+  </section>
+{% endblock %}

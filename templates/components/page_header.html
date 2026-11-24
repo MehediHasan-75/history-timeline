@@ -1,0 +1,8 @@
+<div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+    <h1 class="mt-1 text-3xl sm:text-4xl">{{ heading }}</h1>
+    {% if description %}<p class="mt-2 max-w-3xl text-stone-600">{{ description }}</p>{% endif %}
+  </div>
+  {% if action_url and action_label %}<a class="btn-primary shrink-0" href="{{ action_url }}">{{ action_label }}</a>{% endif %}
+</div>
