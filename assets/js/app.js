@@ -292,6 +292,7 @@ const addChip = (root, label, name, value = "") => {
 
 const updateChips = (form, root) => {
   if (!root) return;
+  const summary = root.closest("[data-filter-summary]");
   root.replaceChildren();
   const data = new FormData(form);
   const query = String(data.get("q") || "").trim();
@@ -317,6 +318,7 @@ const updateChips = (form, root) => {
     const label = from && to ? `${fromLabel}–${toLabel}` : from ? `From ${fromLabel}` : `Up to ${toLabel}`;
     addChip(root, label, "year_range");
   }
+  if (summary) summary.hidden = root.childElementCount === 0;
 };
 
 const clearFilter = (form, name, value = "") => {

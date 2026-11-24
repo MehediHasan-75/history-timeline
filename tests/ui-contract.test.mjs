@@ -50,6 +50,8 @@ test("timeline pages use shared full-width filter toolbar", async () => {
   assert.match(filters, /data-filter-mobile-open/);
   assert.match(filters, /data-filter-clear/);
   assert.match(filters, /data-result-count/);
+  assert.match(filters, /Search title or description/);
+  assert.match(filters, /data-filter-summary hidden/);
   assert.doesNotMatch(filters, /Apply filters/);
   assert.doesNotMatch(publicTimeline, /lg:grid-cols-\[19rem/);
   assert.doesNotMatch(dashboard, /lg:grid-cols-\[19rem/);

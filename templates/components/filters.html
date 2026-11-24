@@ -10,31 +10,31 @@
   </div>
 
   <div class="paper-card space-y-4 p-4 lg:space-y-3">
-    <div class="grid gap-3 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto_auto] lg:items-end">
-      <div>
+    <div class="grid gap-3 lg:flex lg:items-end">
+      <div class="lg:w-56 lg:flex-none xl:w-80">
         <label class="field-label lg:sr-only" for="filter-search">{% if LANGUAGE_CODE == 'bn' %}খুঁজুন{% else %}Search{% endif %}</label>
-        <input class="form-control" id="filter-search" type="search" name="q" value="{{ filters.q|default:'' }}" placeholder="{% if LANGUAGE_CODE == 'bn' %}ইতিহাস খুঁজুন…{% else %}Search history…{% endif %}" autocomplete="off" data-filter-search>
+        <input class="form-control" id="filter-search" type="search" name="q" value="{{ filters.q|default:'' }}" placeholder="{% if LANGUAGE_CODE == 'bn' %}শিরোনাম বা বিবরণ খুঁজুন…{% else %}Search title or description…{% endif %}" autocomplete="off" data-filter-search>
       </div>
-      <div>
+      <div class="lg:w-36 lg:flex-none xl:w-44">
         <label class="field-label lg:sr-only" for="filter-category">{% if LANGUAGE_CODE == 'bn' %}বিভাগ{% else %}Category{% endif %}</label>
         <select class="form-select" id="filter-category" name="category">
           <option value="">{% if LANGUAGE_CODE == 'bn' %}সব বিভাগ{% else %}All categories{% endif %}</option>
           {% for category in categories %}<option value="{{ category.slug }}" {% if filters.category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}
         </select>
       </div>
-      <div>
+      <div class="lg:w-36 lg:flex-none xl:w-44">
         <label class="field-label lg:sr-only" for="filter-calendar">{% if LANGUAGE_CODE == 'bn' %}পঞ্জিকা{% else %}Calendar{% endif %}</label>
         <select class="form-select" id="filter-calendar" name="calendar" data-filter-calendar>
           <option value="GREGORIAN" {% if filters.calendar != 'BENGALI_BD' %}selected{% endif %}>Gregorian</option>
           <option value="BENGALI_BD" {% if filters.calendar == 'BENGALI_BD' %}selected{% endif %}>বাংলাদেশ বাংলা</option>
         </select>
       </div>
-      <button class="btn-secondary hidden lg:inline-flex" type="button" data-filter-advanced-open aria-controls="advanced-filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}আরও ফিল্টার{% else %}More filters{% endif %}</button>
-      <button class="btn-ghost justify-start px-3 lg:justify-center" type="button" data-filter-clear>{% if LANGUAGE_CODE == 'bn' %}সব মুছুন{% else %}Clear all{% endif %}</button>
+      <button class="btn-secondary hidden shrink-0 lg:inline-flex" type="button" data-filter-advanced-open aria-controls="advanced-filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}আরও ফিল্টার{% else %}More filters{% endif %}</button>
+      <button class="btn-ghost shrink-0 justify-start px-3 lg:justify-center" type="button" data-filter-clear>{% if LANGUAGE_CODE == 'bn' %}সব মুছুন{% else %}Clear all{% endif %}</button>
+      <span class="hidden min-w-16 shrink-0 whitespace-nowrap pb-2.5 text-right text-sm font-semibold text-stone-600 lg:ml-auto lg:block" data-result-count hidden></span>
     </div>
-    <div class="flex min-h-8 items-start justify-between gap-3">
+    <div data-filter-summary hidden>
       <div class="flex flex-wrap gap-2" data-active-filters aria-live="polite" aria-label="Active filters"></div>
-      <span class="hidden min-w-16 whitespace-nowrap pt-1 text-right text-sm font-semibold text-stone-600 lg:block" data-result-count hidden></span>
     </div>
   </div>
 
