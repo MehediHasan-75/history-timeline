@@ -90,6 +90,94 @@ const setupDrawer = (button) => {
   });
 };
 
+const trapFocus = (container, event) => {
+  if (event.key !== "Tab") return;
+  const focusable = [...container.querySelectorAll(focusableSelector)].filter((element) => element.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+};
+
+const setupFilterPanels = (form) => {
+  const mobileOpen = document.querySelector(`[data-filter-mobile-open][aria-controls="${form.id}"]`);
+  const mobileClose = form.querySelector("[data-filter-mobile-close]");
+  const advancedOpen = form.querySelector("[data-filter-advanced-open]");
+  const advancedDrawer = form.querySelector("[data-filter-advanced-drawer]");
+  const advancedClose = form.querySelector("[data-filter-advanced-close]");
+  const advancedBackdrop = form.querySelector("[data-filter-advanced-backdrop]");
+  const desktop = window.matchMedia("(min-width: 1024px)");
+  let returnFocus = null;
+
+  const unlockPage = () => document.body.classList.remove("overflow-hidden");
+  const closeAdvanced = ({ restoreFocus = true } = {}) => {
+    advancedDrawer?.classList.remove("is-open");
+    advancedBackdrop?.classList.remove("is-open");
+    form.classList.remove("filter-panel-open");
+    advancedOpen?.setAttribute("aria-expanded", "false");
+    advancedDrawer?.removeAttribute("role");
+    advancedDrawer?.removeAttribute("aria-modal");
+    unlockPage();
+    if (restoreFocus) advancedOpen?.focus();
+  };
+  const closeMobile = ({ restoreFocus = true } = {}) => {
+    form.classList.add("hidden");
+    mobileOpen?.setAttribute("aria-expanded", "false");
+    form.removeAttribute("role");
+    form.removeAttribute("aria-modal");
+    form.removeAttribute("aria-labelledby");
+    unlockPage();
+    if (restoreFocus) mobileOpen?.focus();
+  };
+
+  mobileOpen?.addEventListener("click", () => {
+    returnFocus = mobileOpen;
+    form.classList.remove("hidden");
+    form.setAttribute("role", "dialog");
+    form.setAttribute("aria-modal", "true");
+    form.setAttribute("aria-labelledby", "mobile-filter-title");
+    mobileOpen.setAttribute("aria-expanded", "true");
+    document.body.classList.add("overflow-hidden");
+    mobileClose?.focus();
+  });
+  mobileClose?.addEventListener("click", () => closeMobile());
+  advancedOpen?.addEventListener("click", () => {
+    returnFocus = advancedOpen;
+    advancedDrawer?.classList.add("is-open");
+    advancedDrawer?.setAttribute("role", "dialog");
+    advancedDrawer?.setAttribute("aria-modal", "true");
+    advancedBackdrop?.classList.add("is-open");
+    form.classList.add("filter-panel-open");
+    advancedOpen.setAttribute("aria-expanded", "true");
+    document.body.classList.add("overflow-hidden");
+    advancedClose?.focus();
+  });
+  advancedClose?.addEventListener("click", () => closeAdvanced());
+  advancedBackdrop?.addEventListener("click", () => closeAdvanced());
+  form.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (desktop.matches && advancedDrawer?.classList.contains("is-open")) closeAdvanced();
+      else if (!desktop.matches && mobileOpen?.getAttribute("aria-expanded") === "true") closeMobile();
+      return;
+    }
+    const activePanel = desktop.matches ? advancedDrawer : form;
+    if ((desktop.matches && advancedDrawer?.classList.contains("is-open")) || (!desktop.matches && mobileOpen?.getAttribute("aria-expanded") === "true")) {
+      trapFocus(activePanel, event);
+    }
+  });
+  desktop.addEventListener("change", () => {
+    closeAdvanced({ restoreFocus: false });
+    closeMobile({ restoreFocus: false });
+    returnFocus = null;
+  });
+};
+
 const setupEndDate = (root = document) => {
   root.querySelectorAll("[data-end-date-toggle]").forEach((toggle) => {
     const panel = document.getElementById(toggle.getAttribute("aria-controls"));
@@ -148,23 +236,31 @@ const setupCalendarGroups = (root = document) => {
     sync();
   });
   root.querySelectorAll("[data-filter-calendar]").forEach((calendar) => {
-    const era = calendar.form?.querySelector("[data-filter-era]");
-    const sync = () => {
-      if (!era) return;
-      const bengali = calendar.value === "BENGALI_BD";
-      era.hidden = bengali;
-      era.querySelectorAll("input").forEach((input) => { input.disabled = bengali; });
-    };
+    const sync = () => syncFilterCalendar(calendar.form);
     calendar.addEventListener("change", sync);
     sync();
   });
+};
+
+const syncFilterCalendar = (form) => {
+  const calendar = form?.querySelector("[data-filter-calendar]");
+  const era = form?.querySelector("[data-filter-era]");
+  if (!calendar || !era) return;
+  const bengali = calendar.value === "BENGALI_BD";
+  if (bengali) {
+    const allEras = era.querySelector('input[name="era"][value=""]');
+    if (allEras) allEras.checked = true;
+  }
+  era.hidden = bengali;
+  era.querySelectorAll("input").forEach((input) => { input.disabled = bengali; });
 };
 
 const paramsFromFilters = (form) => {
   const params = new URLSearchParams();
   const data = new FormData(form);
   for (const [name, value] of data.entries()) {
-    if (!value || name.endsWith("_year_abs") || name.endsWith("_era")) continue;
+    if (!value || ["year_from_abs", "year_from_era", "year_to_abs", "year_to_era"].includes(name)) continue;
+    if (name === "calendar" && value === "GREGORIAN") continue;
     params.append(name, value);
   }
   [["year_from", "year_from_abs", "year_from_era"], ["year_to", "year_to_abs", "year_to_era"]]
@@ -176,29 +272,81 @@ const paramsFromFilters = (form) => {
   return params;
 };
 
+const addChip = (root, label, name, value = "") => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "chip";
+  button.dataset.filterRemove = name;
+  button.dataset.filterValue = value;
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+  const icon = document.createElement("span");
+  icon.ariaHidden = "true";
+  icon.textContent = "×";
+  const accessibleLabel = document.createElement("span");
+  accessibleLabel.className = "sr-only";
+  accessibleLabel.textContent = `Remove ${label} filter`;
+  button.append(labelNode, icon, accessibleLabel);
+  root.append(button);
+};
+
 const updateChips = (form, root) => {
   if (!root) return;
   root.replaceChildren();
-  [...new FormData(form).entries()].forEach(([name, value]) => {
-    if (!value || name.endsWith("_era") || name === "csrfmiddlewaretoken") return;
-    const field = form.elements.namedItem(name);
-    const label = field instanceof RadioNodeList ? value : field?.selectedOptions?.[0]?.text || value;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "chip";
-    button.dataset.filterRemove = name;
-    button.dataset.filterValue = value;
-    const labelNode = document.createElement("span");
-    labelNode.textContent = String(label);
-    const icon = document.createElement("span");
-    icon.ariaHidden = "true";
-    icon.textContent = "×";
-    const accessibleLabel = document.createElement("span");
-    accessibleLabel.className = "sr-only";
-    accessibleLabel.textContent = "Remove filter";
-    button.append(labelNode, icon, accessibleLabel);
-    root.append(button);
+  const data = new FormData(form);
+  const query = String(data.get("q") || "").trim();
+  const category = form.elements.namedItem("category");
+  const calendar = form.elements.namedItem("calendar");
+  const era = data.get("era");
+  if (query) addChip(root, query, "q", query);
+  if (category?.value) addChip(root, category.selectedOptions[0].text, "category", category.value);
+  if (calendar?.value === "BENGALI_BD") addChip(root, calendar.selectedOptions[0].text, "calendar", calendar.value);
+  form.querySelectorAll('input[name="tag"]:checked').forEach((field) => {
+    const label = field.closest("label")?.querySelector("span")?.textContent?.trim() || field.value;
+    addChip(root, label, "tag", field.value);
   });
+  if (era) addChip(root, era, "era", era);
+
+  const from = normalizeDigits(data.get("year_from_abs"));
+  const to = normalizeDigits(data.get("year_to_abs"));
+  const calendarIsBengali = calendar?.value === "BENGALI_BD";
+  const formatYear = (year, eraName) => year ? `${year}${calendarIsBengali ? "" : ` ${data.get(eraName)}`}` : "";
+  if (from || to) {
+    const fromLabel = formatYear(from, "year_from_era");
+    const toLabel = formatYear(to, "year_to_era");
+    const label = from && to ? `${fromLabel}–${toLabel}` : from ? `From ${fromLabel}` : `Up to ${toLabel}`;
+    addChip(root, label, "year_range");
+  }
+};
+
+const clearFilter = (form, name, value = "") => {
+  if (name === "year_range") {
+    form.elements.namedItem("year_from_abs").value = "";
+    form.elements.namedItem("year_to_abs").value = "";
+    return;
+  }
+  if (name === "tag") {
+    form.querySelectorAll('input[name="tag"]').forEach((field) => {
+      if (field.value === value) field.checked = false;
+    });
+    return;
+  }
+  if (name === "era") {
+    form.querySelector('input[name="era"][value=""]').checked = true;
+    return;
+  }
+  const field = form.elements.namedItem(name);
+  if (field) field.value = name === "calendar" ? "GREGORIAN" : "";
+};
+
+const clearAllFilters = (form) => {
+  ["q", "category", "year_from_abs", "year_to_abs"].forEach((name) => { form.elements.namedItem(name).value = ""; });
+  form.elements.namedItem("calendar").value = "GREGORIAN";
+  form.elements.namedItem("year_from_era").value = "CE";
+  form.elements.namedItem("year_to_era").value = "CE";
+  form.querySelectorAll('input[name="tag"]').forEach((field) => { field.checked = false; });
+  form.querySelector('input[name="era"][value=""]').checked = true;
+  syncFilterCalendar(form);
 };
 
 const setupTimeline = (root) => {
@@ -206,14 +354,24 @@ const setupTimeline = (root) => {
   const filterForm = document.querySelector(root.dataset.filterForm || "[data-filter-form]");
   const status = root.querySelector("[data-timeline-status]");
   const chips = document.querySelector("[data-active-filters]");
+  const resultCounts = document.querySelectorAll("[data-result-count]");
   let activeEventId = null;
   let requestController = null;
+  let searchTimer = null;
 
   const setStatus = (kind, message) => {
     status.hidden = kind === "ready";
     status.dataset.state = kind;
     status.querySelector("[data-status-message]").textContent = message;
     status.querySelector("[data-status-retry]").hidden = kind !== "error";
+    resultCounts.forEach((count) => { count.hidden = kind === "loading" || kind === "error"; });
+  };
+
+  const setResultCount = (count) => {
+    resultCounts.forEach((element) => {
+      element.textContent = `${count} ${count === 1 ? "event" : "events"}`;
+      element.hidden = false;
+    });
   };
 
   const render = async () => {
@@ -230,6 +388,7 @@ const setupTimeline = (root) => {
       if (!response.ok) throw new Error(`Timeline request failed with ${response.status}`);
       const data = await response.json();
       if (!data || !Array.isArray(data.events)) throw new Error("Timeline response has an invalid shape");
+      setResultCount(data.events.length);
       if (!data.events.length) {
         setStatus("empty", "No events match these filters.");
         return;
@@ -259,18 +418,29 @@ const setupTimeline = (root) => {
 
   filterForm?.addEventListener("submit", (event) => {
     event.preventDefault();
+    window.clearTimeout(searchTimer);
     render();
   });
-  filterForm?.addEventListener("change", render);
-  filterForm?.addEventListener("reset", () => window.setTimeout(render, 0));
+  filterForm?.addEventListener("change", (event) => {
+    if (event.target.matches("[data-filter-search]")) return;
+    window.clearTimeout(searchTimer);
+    render();
+  });
+  filterForm?.querySelector("[data-filter-search]")?.addEventListener("input", () => {
+    window.clearTimeout(searchTimer);
+    requestController?.abort();
+    searchTimer = window.setTimeout(render, 300);
+  });
+  filterForm?.querySelector("[data-filter-clear]")?.addEventListener("click", () => {
+    window.clearTimeout(searchTimer);
+    clearAllFilters(filterForm);
+    render();
+  });
   chips?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-filter-remove]");
     if (!button || !filterForm) return;
-    const fields = [...filterForm.querySelectorAll(`[name="${CSS.escape(button.dataset.filterRemove)}"]`)];
-    fields.forEach((field) => {
-      if ((field.type === "checkbox" || field.type === "radio") && field.value === button.dataset.filterValue) field.checked = false;
-      else if (field.value === button.dataset.filterValue) field.value = "";
-    });
+    clearFilter(filterForm, button.dataset.filterRemove, button.dataset.filterValue);
+    syncFilterCalendar(filterForm);
     render();
   });
   status.querySelector("[data-status-retry]")?.addEventListener("click", render);
@@ -282,9 +452,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-drawer-open]").forEach(setupDrawer);
   document.querySelectorAll("dialog[data-dialog]").forEach(setupDialog);
   document.querySelectorAll("form[data-historical-form]").forEach(validateHistoricalForm);
-  document.querySelectorAll("[data-timeline]").forEach(setupTimeline);
+  document.querySelectorAll("form[data-filter-form]").forEach(setupFilterPanels);
   setupEndDate();
   setupCalendarGroups();
+  document.querySelectorAll("[data-timeline]").forEach(setupTimeline);
 });
 
-export { paramsFromFilters };
+export { clearAllFilters, paramsFromFilters, updateChips };

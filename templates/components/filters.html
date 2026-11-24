@@ -1,67 +1,79 @@
-<form id="event-filters" class="space-y-6" method="get" data-filter-form>
-  <div class="flex items-center justify-between">
-    <h2 class="font-display text-xl font-bold">{% if LANGUAGE_CODE == 'bn' %}ঘটনা ফিল্টার করুন{% else %}Filter events{% endif %}</h2>
-    <button class="btn-ghost px-2 lg:hidden" type="button" data-drawer-close aria-label="Close filters">
-      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="m6 6 12 12M18 6 6 18"/></svg>
-    </button>
+<div class="mb-4 flex items-center justify-between gap-3 lg:hidden">
+  <button class="btn-secondary" type="button" data-filter-mobile-open aria-controls="event-filters" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার{% else %}Filters{% endif %}</button>
+  <span class="text-sm font-semibold text-stone-600" data-result-count hidden></span>
+</div>
+
+<form id="event-filters" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-50 p-4 lg:sticky lg:top-16 lg:z-30 lg:block lg:overflow-visible lg:bg-stone-50/95 lg:p-0 lg:py-3" method="get" data-filter-form>
+  <div class="mb-5 flex items-center justify-between lg:hidden">
+    <div><p class="eyebrow">{% if LANGUAGE_CODE == 'bn' %}সময়রেখা{% else %}Timeline{% endif %}</p><h2 id="mobile-filter-title" class="mt-1 text-2xl">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার{% else %}Filters{% endif %}</h2></div>
+    <button class="btn-ghost px-2" type="button" data-filter-mobile-close aria-label="Close filters"><svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="m6 6 12 12M18 6 6 18"/></svg></button>
   </div>
-  <div>
-    <label class="field-label" for="filter-search">{% if LANGUAGE_CODE == 'bn' %}খুঁজুন{% else %}Search{% endif %}</label>
-    <input class="form-control" id="filter-search" type="search" name="q" value="{{ filters.q|default:'' }}" placeholder="{% if LANGUAGE_CODE == 'bn' %}শিরোনাম বা বিবরণ{% else %}Title or description{% endif %}">
-  </div>
-  <div>
-    <label class="field-label" for="filter-category">{% if LANGUAGE_CODE == 'bn' %}বিভাগ{% else %}Category{% endif %}</label>
-    <select class="form-select" id="filter-category" name="category">
-      <option value="">All categories</option>
-      {% for category in categories %}<option value="{{ category.slug }}" {% if filters.category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}
-    </select>
-  </div>
-  {% if tags %}
-    <fieldset>
-      <legend class="field-label">Tags</legend>
-      <div class="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-stone-200 bg-white p-3">
-        {% for tag in tags %}
-          <label class="flex min-h-8 cursor-pointer items-center gap-2 text-sm text-stone-700">
-            <input class="size-4 rounded border-stone-300 text-amber-700 focus:ring-amber-700" type="checkbox" name="tag" value="{{ tag.slug }}" {% if tag.slug in selected_tags %}checked{% endif %}>
-            <span>#{{ tag.name }}</span>
-          </label>
-        {% endfor %}
+
+  <div class="paper-card space-y-4 p-4 lg:space-y-3">
+    <div class="grid gap-3 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto_auto] lg:items-end">
+      <div>
+        <label class="field-label lg:sr-only" for="filter-search">{% if LANGUAGE_CODE == 'bn' %}খুঁজুন{% else %}Search{% endif %}</label>
+        <input class="form-control" id="filter-search" type="search" name="q" value="{{ filters.q|default:'' }}" placeholder="{% if LANGUAGE_CODE == 'bn' %}ইতিহাস খুঁজুন…{% else %}Search history…{% endif %}" autocomplete="off" data-filter-search>
       </div>
-    </fieldset>
-  {% endif %}
-  <fieldset>
-    <legend class="field-label">{% if LANGUAGE_CODE == 'bn' %}পঞ্জিকা{% else %}Calendar{% endif %}</legend>
-    <select class="form-select" name="calendar" data-filter-calendar>
-      <option value="GREGORIAN" {% if filters.calendar != 'BENGALI_BD' %}selected{% endif %}>Gregorian</option>
-      <option value="BENGALI_BD" {% if filters.calendar == 'BENGALI_BD' %}selected{% endif %}>বাংলাদেশ বাংলা</option>
-    </select>
-  </fieldset>
-  <fieldset data-filter-era>
-    <legend class="field-label">Era</legend>
-    <div class="grid grid-cols-3 gap-2">
-      {% for value, label in era_choices %}
-        <label class="cursor-pointer">
-          <input class="peer sr-only" type="radio" name="era" value="{{ value }}" {% if filters.era == value or not filters.era and not value %}checked{% endif %}>
-          <span class="flex min-h-10 items-center justify-center rounded-lg border border-stone-300 bg-white px-2 text-sm font-semibold peer-checked:border-amber-700 peer-checked:bg-amber-50 peer-checked:text-amber-900">{{ label }}</span>
-        </label>
-      {% endfor %}
+      <div>
+        <label class="field-label lg:sr-only" for="filter-category">{% if LANGUAGE_CODE == 'bn' %}বিভাগ{% else %}Category{% endif %}</label>
+        <select class="form-select" id="filter-category" name="category">
+          <option value="">{% if LANGUAGE_CODE == 'bn' %}সব বিভাগ{% else %}All categories{% endif %}</option>
+          {% for category in categories %}<option value="{{ category.slug }}" {% if filters.category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="field-label lg:sr-only" for="filter-calendar">{% if LANGUAGE_CODE == 'bn' %}পঞ্জিকা{% else %}Calendar{% endif %}</label>
+        <select class="form-select" id="filter-calendar" name="calendar" data-filter-calendar>
+          <option value="GREGORIAN" {% if filters.calendar != 'BENGALI_BD' %}selected{% endif %}>Gregorian</option>
+          <option value="BENGALI_BD" {% if filters.calendar == 'BENGALI_BD' %}selected{% endif %}>বাংলাদেশ বাংলা</option>
+        </select>
+      </div>
+      <button class="btn-secondary hidden lg:inline-flex" type="button" data-filter-advanced-open aria-controls="advanced-filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}আরও ফিল্টার{% else %}More filters{% endif %}</button>
+      <button class="btn-ghost justify-start px-3 lg:justify-center" type="button" data-filter-clear>{% if LANGUAGE_CODE == 'bn' %}সব মুছুন{% else %}Clear all{% endif %}</button>
     </div>
-  </fieldset>
-  <fieldset>
-    <legend class="field-label">Start-year range</legend>
-    <div class="space-y-3">
-      <div class="grid grid-cols-[1fr_6rem] gap-2">
-        <input class="form-control" type="text" inputmode="numeric" name="year_from_abs" value="{{ filters.year_from_abs|default:'' }}" aria-label="Earliest year" placeholder="From">
-        <select class="form-select px-2" name="year_from_era" aria-label="Earliest year era"><option {% if filters.year_from_era == 'BCE' %}selected{% endif %}>BCE</option><option {% if filters.year_from_era != 'BCE' %}selected{% endif %}>CE</option></select>
-      </div>
-      <div class="grid grid-cols-[1fr_6rem] gap-2">
-        <input class="form-control" type="text" inputmode="numeric" name="year_to_abs" value="{{ filters.year_to_abs|default:'' }}" aria-label="Latest year" placeholder="To">
-        <select class="form-select px-2" name="year_to_era" aria-label="Latest year era"><option {% if filters.year_to_era == 'BCE' %}selected{% endif %}>BCE</option><option {% if filters.year_to_era != 'BCE' %}selected{% endif %}>CE</option></select>
-      </div>
+    <div class="flex min-h-8 items-start justify-between gap-3">
+      <div class="flex flex-wrap gap-2" data-active-filters aria-live="polite" aria-label="Active filters"></div>
+      <span class="hidden min-w-16 whitespace-nowrap pt-1 text-right text-sm font-semibold text-stone-600 lg:block" data-result-count hidden></span>
     </div>
-  </fieldset>
-  <div class="flex gap-2">
-    <button class="btn-primary flex-1" type="submit">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার প্রয়োগ করুন{% else %}Apply filters{% endif %}</button>
-    <button class="btn-secondary" type="reset">{% if LANGUAGE_CODE == 'bn' %}রিসেট{% else %}Reset{% endif %}</button>
   </div>
+
+  <button class="advanced-filter-backdrop" type="button" data-filter-advanced-backdrop aria-label="Close advanced filters"></button>
+  <aside id="advanced-filter-drawer" class="advanced-filter-drawer" data-filter-advanced-drawer aria-labelledby="advanced-filter-title">
+    <div class="hidden items-center justify-between border-b border-stone-200 px-5 py-4 lg:flex">
+      <div><p class="eyebrow">{% if LANGUAGE_CODE == 'bn' %}সময়রেখা{% else %}Timeline{% endif %}</p><h2 id="advanced-filter-title" class="mt-1 text-2xl">{% if LANGUAGE_CODE == 'bn' %}উন্নত ফিল্টার{% else %}Advanced filters{% endif %}</h2></div>
+      <button class="btn-ghost px-2" type="button" data-filter-advanced-close aria-label="Close advanced filters"><svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="1.8" d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
+
+    <div class="space-y-6 py-6 lg:p-5">
+      {% if tags %}
+        <fieldset>
+          <legend class="field-label">Tags</legend>
+          <div class="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-stone-200 bg-white p-3">
+            {% for tag in tags %}
+              <label class="flex min-h-8 cursor-pointer items-center gap-2 text-sm text-stone-700">
+                <input class="size-4 rounded border-stone-300 text-amber-700 focus:ring-amber-700" type="checkbox" name="tag" value="{{ tag.slug }}" {% if tag.slug in selected_tags %}checked{% endif %}>
+                <span>#{{ tag.name }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+      {% endif %}
+      <fieldset data-filter-era>
+        <legend class="field-label">Era</legend>
+        <div class="grid grid-cols-3 gap-2">
+          {% for value, label in era_choices %}
+            <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="era" value="{{ value }}" {% if filters.era == value or not filters.era and not value %}checked{% endif %}><span class="flex min-h-10 items-center justify-center rounded-lg border border-stone-300 bg-white px-2 text-sm font-semibold peer-checked:border-amber-700 peer-checked:bg-amber-50 peer-checked:text-amber-900">{{ label }}</span></label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="field-label">Start-year range</legend>
+        <div class="space-y-3">
+          <div class="grid grid-cols-[1fr_6rem] gap-2"><input class="form-control" type="text" inputmode="numeric" name="year_from_abs" value="{{ filters.year_from_abs|default:'' }}" aria-label="Earliest year" placeholder="From"><select class="form-select px-2" name="year_from_era" aria-label="Earliest year era"><option {% if filters.year_from_era == 'BCE' %}selected{% endif %}>BCE</option><option {% if filters.year_from_era != 'BCE' %}selected{% endif %}>CE</option></select></div>
+          <div class="grid grid-cols-[1fr_6rem] gap-2"><input class="form-control" type="text" inputmode="numeric" name="year_to_abs" value="{{ filters.year_to_abs|default:'' }}" aria-label="Latest year" placeholder="To"><select class="form-select px-2" name="year_to_era" aria-label="Latest year era"><option {% if filters.year_to_era == 'BCE' %}selected{% endif %}>BCE</option><option {% if filters.year_to_era != 'BCE' %}selected{% endif %}>CE</option></select></div>
+        </div>
+      </fieldset>
+    </div>
+  </aside>
 </form>

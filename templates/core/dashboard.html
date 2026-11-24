@@ -6,7 +6,6 @@
   <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div><p class="eyebrow">{% if LANGUAGE_CODE == 'bn' %}আপনার গবেষণার স্থান{% else %}Your research space{% endif %}</p><h1 class="mt-1 text-3xl sm:text-4xl">{% if LANGUAGE_CODE == 'bn' %}আবার স্বাগতম{% else %}Welcome back{% endif %}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</h1><p class="mt-2 text-stone-600">{% if LANGUAGE_CODE == 'bn' %}আপনার কালানুক্রম পর্যালোচনা করুন এবং তথ্য যোগ করুন।{% else %}Review your chronology and continue building the record.{% endif %}</p></div>
     <div class="flex gap-2">
-      <button class="btn-secondary lg:hidden" type="button" data-drawer-open aria-controls="filter-drawer" aria-expanded="false">{% if LANGUAGE_CODE == 'bn' %}ফিল্টার{% else %}Filters{% endif %}</button>
       <button class="btn-primary hidden sm:inline-flex" type="button" data-dialog-open="new-event-dialog">{% if LANGUAGE_CODE == 'bn' %}নতুন ঘটনা{% else %}New event{% endif %}</button>
       <a class="btn-primary sm:hidden" href="{% url 'events:create' %}">{% if LANGUAGE_CODE == 'bn' %}নতুন ঘটনা{% else %}New event{% endif %}</a>
     </div>
@@ -18,14 +17,9 @@
     <div class="paper-card p-4"><dt class="text-sm text-stone-500">Private</dt><dd class="mt-1 font-display text-3xl font-bold text-stone-600">{{ event_stats.private|default:0 }}</dd></div>
   </dl>
 
-  <div class="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)]">
-    <aside id="filter-drawer" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-50 p-5 lg:static lg:z-auto lg:block lg:rounded-2xl lg:border lg:border-stone-200 lg:bg-white lg:p-5" aria-label="Timeline filters">
-      {% include "components/filters.html" %}
-    </aside>
-    <div class="min-w-0">
-      <div class="mb-4 flex min-h-8 flex-wrap gap-2" data-active-filters aria-live="polite"></div>
-      {% include "components/timeline.html" with feed_url=private_feed_url %}
-    </div>
+  <div class="min-w-0">
+    {% include "components/filters.html" %}
+    {% include "components/timeline.html" with feed_url=private_feed_url %}
   </div>
 {% endblock %}
 

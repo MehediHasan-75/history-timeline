@@ -36,6 +36,31 @@ test("base template loads versioned compiled assets", async () => {
   assert.match(template, /app\.v1\.css/);
   assert.match(template, /timeline\.v3\.9\.13\.css/);
   assert.match(template, /app\.v1\.js/);
+  assert.match(template, /favicon\.svg/);
+});
+
+test("timeline pages use shared full-width filter toolbar", async () => {
+  const [filters, publicTimeline, dashboard] = await Promise.all([
+    read("templates/components/filters.html"),
+    read("templates/core/public_timeline.html"),
+    read("templates/core/dashboard.html"),
+  ]);
+  assert.match(filters, /data-filter-search/);
+  assert.match(filters, /data-filter-advanced-drawer/);
+  assert.match(filters, /data-filter-mobile-open/);
+  assert.match(filters, /data-filter-clear/);
+  assert.match(filters, /data-result-count/);
+  assert.doesNotMatch(filters, /Apply filters/);
+  assert.doesNotMatch(publicTimeline, /lg:grid-cols-\[19rem/);
+  assert.doesNotMatch(dashboard, /lg:grid-cols-\[19rem/);
+});
+
+test("timeline filtering debounces search and cancels obsolete requests", async () => {
+  const script = await read("assets/js/app.js");
+  assert.match(script, /new AbortController\(\)/);
+  assert.match(script, /window\.setTimeout\(render, 300\)/);
+  assert.match(script, /data\.events\.length/);
+  assert.match(script, /count === 1 \? "event" : "events"/);
 });
 
 test("TimelineJS vendor font referenced by its stylesheet is packaged", async () => {
